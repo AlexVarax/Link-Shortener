@@ -1,8 +1,10 @@
 import sqlite3
+import os.path
+import sys
 
 
 class DB_Connect:
-    def __init__(self, db_path='DataLayer/link-short.db'):
+    def __init__(self, db_path=os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'link-short.db')):
         self.connection = sqlite3.connect(db_path, check_same_thread=False)
         self.cur = self.connection.cursor()
         self.create_tables()

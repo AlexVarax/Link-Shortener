@@ -1,7 +1,6 @@
-import DataLayer.DB_Connect
-import NetworkLayer.Server
-import Hash_function
+import sys
+from Server import Server
 
+server = Server('localhost', 80)
 
-
-
+server.start()
