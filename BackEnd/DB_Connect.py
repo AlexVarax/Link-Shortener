@@ -11,7 +11,6 @@ class DB_Connect:
 
     def create_tables(self):
         with self.connection:
-            # Проверяем, существует ли таблица users
             self.cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY,
@@ -19,7 +18,6 @@ class DB_Connect:
                 )
             """)
             
-            # Проверяем, существует ли таблица urls
             self.cur.execute("""
                 CREATE TABLE IF NOT EXISTS urls (
                     id INTEGER,
@@ -30,12 +28,6 @@ class DB_Connect:
             """)
 
     def anti_sql_injection(self, param: str) -> bool:
-        if not isinstance(param, str):
-            return False
-
-        sql_keywords = [';', '--', '/*', '*/', 'xp_', 'exec', 'select', 'insert', 'update', 'delete']
-        if any(keyword in param.lower() for keyword in sql_keywords):
-            return False
         return True
 
     def get_full_url(self, short_key: str):
@@ -45,6 +37,8 @@ class DB_Connect:
         self.cur.execute('SELECT original_url FROM urls WHERE short_key = ?', (short_key,))
         result = self.cur.fetchone()
 
+        print(result)
+
         return result[0] if result else None
 
     def add_short_url(self, user_id: int, original_url: str, short_key: str):
@@ -53,10 +47,14 @@ class DB_Connect:
 
         try:
             with self.connection:
-                self.cur.execute(
-                    'INSERT INTO urls (id, original_url, short_key) VALUES (?, ?, ?)',
-                    (user_id, original_url, short_key)
-                )
+                self.cur.execute('SELECT short_key FROM urls WHERE short_key = ?', (short_key,))
+                count_short_key = self.cur.fetchone()
+
+                if count_short_key == 0 or count_short_key == None:
+                    self.cur.execute(
+                        'INSERT INTO urls (id, original_url, short_key) VALUES (?, ?, ?)',
+                        (user_id, original_url, short_key)
+                    )
             return True
         except sqlite3.IntegrityError:
             return False
@@ -73,7 +71,10 @@ class DB_Connect:
 
         try:
             with self.connection:
-                self.cur.execute('INSERT INTO users (id, name) VALUES (?, ?)', (user_id, name))
+                self.cur.execute('SELECT id FROM users WHERE id = ?', (user_id,))
+                count_id = self.cur.fetchone()
+                if count_id == None or count_id == 0:
+                    self.cur.execute('INSERT INTO users (id, name) VALUES (?, ?)', (user_id, name))
             return True
         except sqlite3.IntegrityError:
             return False
