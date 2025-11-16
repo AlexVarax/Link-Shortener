@@ -109,7 +109,6 @@ class Server:
             headers = request[:headers_end]
             body = request[headers_end + 4:]
 
-            # Проверить Content-Type
             if "Content-Type: application/json" in headers:
                 try:
                     data = json.loads(body)
