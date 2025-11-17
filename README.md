@@ -25,14 +25,8 @@
 +---BackEnd
 |   |   DB_Connect.py
 |   |   Hash_function.py
-|   |   link-short.db
 |   |   main.py
 |   |   Server.py
-|   |
-|   \---__pycache__
-|           DB_Connect.cpython-312.pyc
-|           Hash_function.cpython-312.pyc
-|           Server.cpython-312.pyc
 |
 \---FrontEnd
     |   index.html
