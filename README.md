@@ -38,6 +38,22 @@
             logo_proect.png
 ```
 
+## Запуск программы
+
+1.  **Клонируйте репозиторий:**
+    ```bash
+    git clone https://github.com/AlexVarax/Link-Shortener.git
+    cd Link-Shortener
+    ```
+
+2.  **Запустите бэкенд-сервер:**
+    ```bash
+    cd BackEnd
+    python main.py
+    ```
+    *Сервер запустится на localhost:80*
+
+
 ## Интерфейс
 <div align="center" style="border: 1px solid black"> 
   <img src="https://github.com/AlexVarax/Link-Shortener/blob/master/Снимок%20экрана%202025-11-17%20022316.png" width="500">
