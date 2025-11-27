@@ -1,3 +1,5 @@
+# HTTP-сервер для сокращения URL с поддержкой статики и API
+
 from urllib.parse import parse_qs
 from DB_Connect import DB_Connect
 from Hash_function import Hash
@@ -36,11 +38,9 @@ class Server:
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((self.host, self.port))
         server_socket.listen(5)
-        print(f"Server running on {self.host}:{self.port}")
 
         while self.work:
             client_socket, addr = server_socket.accept()
-            print(f"New connection from {addr}")
             thread = Thread(target=self.handle_client, args=(client_socket, addr))
             thread.daemon = True
             thread.start()
@@ -48,16 +48,14 @@ class Server:
     def handle_client(self, client_socket, addr):
         try:
             request = client_socket.recv(4096).decode('utf-8', errors='ignore')
-            print(f"Request from {addr}:\n{request[:500]}...")
-
             response = self.handle_request(request)
 
             if isinstance(response, bytes):
                 client_socket.send(response)
             else:
                 client_socket.send(response.encode())
-        except Exception as e:
-            print(f"Error handling client {addr}: {e}")
+        except Exception:
+            pass
         finally:
             client_socket.close()
 
@@ -70,8 +68,6 @@ class Server:
         method, path, version = request_line.split()
 
         if method == "GET":
-            print(f"\n\n\n\n{path[1:]}\n\n\n\n\n")
-
             if path == "/link-shortener":
                 try:
                     with open(self.making_path("../FrontEnd/index.html"), "r", encoding="utf-8") as f:
@@ -80,11 +76,10 @@ class Server:
                     return f"""HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: {len(response_body)}\r\n\r\n{response_body}"""
                 except FileNotFoundError:
                     return f"{version} 404 Not Found\r\n\r\nFile not found"
-                
-            elif self.db.get_full_url(path[1:]) != None:
-                full_url = self.db.get_full_url(path[1:])
-                print(f"{'-'*20} {full_url}")
-                
+
+            full_url = self.db.get_full_url(path[1:])
+            
+            if full_url is not None:
                 return f"""{version} 302 Found\r\nLocation: {full_url}\r\n\r\n"""
             else:
                 filepath = path[1:]
@@ -100,11 +95,9 @@ class Server:
                             content = f.read()
                         return f"""HTTP/1.1 200 OK\r\nContent-Type: {content_type}\r\nContent-Length: {len(content)}\r\n\r\n{content}"""
                 else:
-                    
                     return "HTTP/1.1 404 Not Found\r\n\r\nFile not found"
 
         elif method == "POST":
-            # Найти заголовки и тело
             headers_end = request.find("\r\n\r\n")
             headers = request[:headers_end]
             body = request[headers_end + 4:]
@@ -112,8 +105,6 @@ class Server:
             if "Content-Type: application/json" in headers:
                 try:
                     data = json.loads(body)
-                    print("\n\n\n DATA = ", data, type(data), " \n\n")
-
                     user_id = int(data['id'])
                     original_url = data['url']
                     short_key = self.hash.hash(user_id, original_url)
@@ -126,7 +117,7 @@ class Server:
                     self.db.add_short_url(user_id, original_url, short_key)
 
                     return f"""HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {len(response_body)}\r\n\r\n{response_body}"""
-                except json.JSONDecodeError:
+                except (json.JSONDecodeError, KeyError, ValueError):
                     return "HTTP/1.1 400 Bad Request\r\n\r\nInvalid JSON"
             else:
                 return "HTTP/1.1 400 Bad Request\r\n\r\nContent-Type must be application/json"

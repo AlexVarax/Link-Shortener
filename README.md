@@ -10,7 +10,7 @@
 
 ## Функционал приложения
 - **Генерация рабочей сокращенной ссылки**
-- **Счетчик переходов** (реализован бекенд)
+- **Счетчик переходов**
 - **Создание учетных записей** (реализован бекенд)
 
 ## Стек технологий
@@ -29,10 +29,6 @@
 |   |   main.py
 |   |   Server.py
 |   |
-|   \---__pycache__
-|           DB_Connect.cpython-312.pyc
-|           Hash_function.cpython-312.pyc
-|           Server.cpython-312.pyc
 |
 \---FrontEnd
     |   index.html
@@ -43,6 +39,21 @@
             logo_corp.png
             logo_proect.png
 ```
+
+## Запуск программы
+
+1.  **Клонируйте репозиторий:**
+    ```bash
+    git clone https://github.com/AlexVarax/Link-Shortener.git
+    cd Link-Shortener
+    ```
+
+2.  **Запустите main:**
+    ```bash
+    cd BackEnd
+    python main.py
+    ```
+    *Сервер запустится на localhost:8080*
 
 ## Интерфейс
 <div align="center" style="border: 1px solid black"> 

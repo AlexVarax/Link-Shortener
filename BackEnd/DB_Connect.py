@@ -1,3 +1,5 @@
+# Модуль подключения и работы с базой данных SQLite для сервиса сокращения URL
+
 import sqlite3
 import os.path
 import sys
@@ -23,6 +25,7 @@ class DB_Connect:
                     id INTEGER,
                     original_url TEXT NOT NULL,
                     short_key TEXT NOT NULL UNIQUE,
+                    clicks INTEGER,
                     FOREIGN KEY (id) REFERENCES users(id)
                 )
             """)
@@ -33,11 +36,12 @@ class DB_Connect:
     def get_full_url(self, short_key: str):
         if not self.anti_sql_injection(short_key):
             return None
+        
+        self.cur.execute('UPDATE urls SET clicks = clicks + 1 WHERE short_key = ?', (short_key,))
+        self.connection.commit()
 
         self.cur.execute('SELECT original_url FROM urls WHERE short_key = ?', (short_key,))
         result = self.cur.fetchone()
-
-        print(result)
 
         return result[0] if result else None
 
@@ -50,9 +54,9 @@ class DB_Connect:
                 self.cur.execute('SELECT short_key FROM urls WHERE short_key = ?', (short_key,))
                 count_short_key = self.cur.fetchone()
 
-                if count_short_key == 0 or count_short_key == None:
+                if count_short_key is None:
                     self.cur.execute(
-                        'INSERT INTO urls (id, original_url, short_key) VALUES (?, ?, ?)',
+                        'INSERT INTO urls (id, original_url, short_key, clicks) VALUES (?, ?, ?, 0)',
                         (user_id, original_url, short_key)
                     )
             return True
@@ -73,7 +77,7 @@ class DB_Connect:
             with self.connection:
                 self.cur.execute('SELECT id FROM users WHERE id = ?', (user_id,))
                 count_id = self.cur.fetchone()
-                if count_id == None or count_id == 0:
+                if count_id is None:
                     self.cur.execute('INSERT INTO users (id, name) VALUES (?, ?)', (user_id, name))
             return True
         except sqlite3.IntegrityError:
