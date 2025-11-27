@@ -11,7 +11,7 @@
 ## Функционал приложения
 - **Генерация рабочей сокращенной ссылки**
 - **Счетчик переходов**
-- **Создание учетных записей** (реализован бекенд)
+- **Создание учетных записей**
 
 ## Стек технологий
 - python
@@ -27,11 +27,6 @@
 |   |   Hash_function.py
 |   |   main.py
 |   |   Server.py
-|   |
-|   \---__pycache__
-|           DB_Connect.cpython-312.pyc
-|           Hash_function.cpython-312.pyc
-|           Server.cpython-312.pyc
 |
 \---FrontEnd
     |   index.html
